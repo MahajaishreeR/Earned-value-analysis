@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Calculator</title>
+    <style>
+    body {
+      font-family:'Courier New', monospace;
+      background-color: #80ced6;
+      background-image: url("bg4.jpeg");
+      height: 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-color: #80ced6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .bg{
+      background-color: black;
+ 
+    }
+    label {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+    input {
+      width: 100px;
+      text-align: center;
+    }
+
+        button[type="submit"] {
+            background-color: grey;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: darkgrey;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body><div class='bg'>
+    <div class="container">
+        <h1>Earned Value Analysis Calculator</h1>
+        <form id="projectForm">
+            <label for="numTasks">Enter the number of tasks:</label>
+            <input type="number" id="numTasks" required><br><br><br>            
+            <div id="plannedEfforts">
+                <!-- Planned effort inputs will accept doubles -->
+            </div>
+            
+            <div id="actualEfforts">
+                <!-- Actual effort inputs will accept doubles -->
+            </div>
+            
+            <label for="bac">Enter the BAC:</label>
+            <input type="number" id="bac" step="any" required>
+            <br><br><br>
+            
+            <button type="submit">Calculate</button>
+        </form>
+        
+        <div class="result" id="result">
+            <!-- Results will be displayed here -->
+        </div>
+    </div></div>
+
+    <script>
+        const projectForm = document.getElementById("projectForm");
+        const plannedEfforts = document.getElementById("plannedEfforts");
+        const actualEfforts = document.getElementById("actualEfforts");
+        const result = document.getElementById("result");
+
+        projectForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            const numTasks = parseInt(document.getElementById("numTasks").value);
+            const bac = parseFloat(document.getElementById("bac").value);
+            let psum = 0.0;
+            let asum = 0.0;
+            let x = 0.0;
+
+            for (let i = 0; i < numTasks; i++) {
+                const pInput = parseFloat(document.getElementById(`plannedEffort${i}`).value);
+                const aInput = parseFloat(document.getElementById(`actualEffort${i}`).value);
+
+                if (!isNaN(pInput) && !isNaN(aInput)) {
+                    if (aInput > 0) {
+                        psum += pInput;
+                        asum += aInput;
+                    } else {
+                        x += pInput;
+                    }
+                }
+            }
+
+            const BCWS = x + psum;
+            const BCWP = psum;
+            const ACWP = asum;
+            const SPI = BCWP / BCWS;
+            const SV = BCWP - BCWS;
+            const CPI = BCWP / ACWP;
+            const CV = BCWP - ACWP;
+            const percentageComplete = (BCWP / bac);
+            const percentageScheduleComplete = (BCWS / bac);
+
+            result.innerHTML = `
+                <h2>Results:</h2>
+                <p>BCWS (Budgeted Cost of Work Scheduled): ${BCWS.toFixed(2)}</p>
+                <p>BCWP (Budgeted Cost of Work Performed): ${BCWP.toFixed(2)}</p>
+                <p>SPI (Schedule Performance Index): ${SPI.toFixed(2)}</p>
+                <p>SV (Schedule Variance): ${SV.toFixed(2)}</p>
+                <p>ACWP (Actual Cost of Work Performed): ${ACWP.toFixed(2)}</p>
+                <p>CPI (Cost Performance Index): ${CPI.toFixed(2)}</p>
+                <p>CV (Cost Variance): ${CV.toFixed(2)}</p>
+                <p>Percentage Complete: ${percentageComplete.toFixed(2)}%</p>
+                <p>Percentage Schedule Complete: ${percentageScheduleComplete.toFixed(2)}%</p>
+            `;
+        });
+
+        // Dynamically create planned effort and actual effort input fields based on the number of tasks
+        document.getElementById("numTasks").addEventListener("change", function() {
+            const numTasks = parseInt(this.value);
+            plannedEfforts.innerHTML = "";
+            actualEfforts.innerHTML = "";
+
+            for (let i = 0; i < numTasks; i++) {
+                plannedEfforts.innerHTML += `
+                    <label for="plannedEffort${i}">Planned Effort for Task ${i + 1}:</label>
+                    <input type="number" id="plannedEffort${i}" step="any" required><br><br>
+                `;
+                actualEfforts.innerHTML += `
+                    <label for="actualEffort${i}">Actual Effort for Task ${i + 1}:</label>
+                    <input type="number" id="actualEffort${i}" step="any" required><br><br>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
